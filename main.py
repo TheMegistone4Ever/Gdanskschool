@@ -7,8 +7,8 @@ if not path.exists(r".\plots"):
     makedirs(r".\plots")
 
 # Load the OCV data files
-ocv1_data = pd.read_csv(r".\mnt\data\ocv1_reductionH2_H2O_4.txt", sep="\s+")
-ocv2_data = pd.read_csv(r".\mnt\data\ocv2_H2O_4_to_12.txt", sep="\s+")
+ocv1_data = pd.read_csv(r".\mnt\data\ocv1_reductionH2_H2O_4.txt", sep=r"\s+")
+ocv2_data = pd.read_csv(r".\mnt\data\ocv2_H2O_4_to_12.txt", sep=r"\s+")
 
 # Combine the OCV data into a single DataFrame
 ocv_data = pd.concat([ocv1_data, ocv2_data], ignore_index=True)
@@ -24,6 +24,21 @@ plt.grid(True)
 plt.savefig(r".\plots\ocv_vs_time.png", dpi=150)
 plt.show()
 
+
+def plot_i_v_curves(data_files, i_v_mode):
+    plt.figure(figsize=(10, 6))
+    for f in data_files:
+        file_df = pd.read_csv(f, sep=r"\s+")
+        plt.plot(file_df["I(A/cm2)"], file_df["E(Volts)"], label=f"{f.split('/')[-1].split('_')[3]} H2O")
+    plt.xlabel("Current Density (A/cm2)")
+    plt.ylabel("Voltage (V)")
+    plt.title(f"I-V Curves for {i_v_mode} Mode")
+    plt.legend(title="% H2O")
+    plt.grid(True)
+    plt.savefig(rf".\plots\iv_curves_{i_v_mode.lower()}_mode.png", dpi=150)
+    plt.show()
+
+
 # Define SOFC mode data files
 sofc_files = [
     r".\mnt\data\800_SOFC_test_4_H2O.txt",
@@ -33,17 +48,7 @@ sofc_files = [
 ]
 
 # Plot I-V curves for SOFC mode
-plt.figure(figsize=(10, 6))
-for file in sofc_files:
-    data = pd.read_csv(file, sep="\s+")
-    plt.plot(data["I(A/cm2)"], data["E(Volts)"], label=f"{file.split('/')[-1].split('_')[3]} H2O")
-plt.xlabel("Current Density (A/cm2)")
-plt.ylabel("Voltage (V)")
-plt.title("I-V Curves for SOFC Mode")
-plt.legend(title="% H2O")
-plt.grid(True)
-plt.savefig(r".\plots\iv_curves_sofc_mode.png", dpi=150)
-plt.show()
+plot_i_v_curves(sofc_files, "SOFC")
 
 # Define SOEC mode data files
 soec_files = [
@@ -54,22 +59,12 @@ soec_files = [
 ]
 
 # Plot I-V curves for SOEC mode
-plt.figure(figsize=(10, 6))
-for file in soec_files:
-    data = pd.read_csv(file, sep="\s+")
-    plt.plot(data["I(A/cm2)"], data["E(Volts)"], label=f"{file.split('/')[-1].split('_')[3]} H2O")
-plt.xlabel("Current Density (A/cm2)")
-plt.ylabel("Voltage (V)")
-plt.title("I-V Curves for SOEC Mode")
-plt.legend(title="% H2O")
-plt.grid(True)
-plt.savefig(r".\plots\iv_curves_soec_mode.png", dpi=150)
-plt.show()
+plot_i_v_curves(soec_files, "SOEC")
 
 # Plot P-I curves for SOFC mode
 plt.figure(figsize=(10, 6))
 for file in sofc_files:
-    data = pd.read_csv(file, sep="\s+")
+    data = pd.read_csv(file, sep=r"\s+")
     power = data["E(Volts)"] * data["I(A/cm2)"]
     plt.plot(data["I(A/cm2)"], power, label=f"{file.split('/')[-1].split('_')[3]} H2O")
 plt.xlabel("Current Density (A/cm2)")
@@ -100,7 +95,7 @@ impedance_files = {
 for mode, files in impedance_files.items():
     plt.figure(figsize=(10, 6))
     for file in files:
-        data = pd.read_csv(file, sep="\s+")
+        data = pd.read_csv(file, sep=r"\s+")
         plt.plot(data["Z'"], data["Z''"], label=f"{file.split('/')[-1].split('_')[2]} H2O")
     plt.xlabel("Z' (Real Impedance, Ω)")
     plt.ylabel("Z'' (Imaginary Impedance, Ω)")
@@ -111,5 +106,5 @@ for mode, files in impedance_files.items():
     plt.show()
 
 # Load one impedance spectroscopy data file to check the column names
-data_example = pd.read_csv(r".\mnt\data\IS_800_SOFC_4_H2O.txt", sep="\s+")
+data_example = pd.read_csv(r".\mnt\data\IS_800_SOFC_4_H2O.txt", sep=r"\s+")
 print(data_example.columns)
