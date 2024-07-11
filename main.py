@@ -10,7 +10,7 @@ if not path.exists(r".\plots"):
 ocv1_data = pd.read_csv(r".\mnt\data\ocv1_reductionH2_H2O_4.txt", sep="\s+")
 ocv2_data = pd.read_csv(r".\mnt\data\ocv2_H2O_4_to_12.txt", sep="\s+")
 
-# Combine the data into a single DataFrame
+# Combine the OCV data into a single DataFrame
 ocv_data = pd.concat([ocv1_data, ocv2_data], ignore_index=True)
 
 # Plot OCV vs. Time
@@ -24,7 +24,7 @@ plt.grid(True)
 plt.savefig(r".\plots\ocv_vs_time.png", dpi=150)
 plt.show()
 
-# Load SOFC mode data files
+# Define SOFC mode data files
 sofc_files = [
     r".\mnt\data\800_SOFC_test_4_H2O.txt",
     r".\mnt\data\800_SOFC_test_12_H2O.txt",
@@ -32,13 +32,11 @@ sofc_files = [
     r".\mnt\data\800_SOFC_test_50_H2O.txt"
 ]
 
-# Read and plot I-V curves for SOFC mode
+# Plot I-V curves for SOFC mode
 plt.figure(figsize=(10, 6))
-
 for file in sofc_files:
     data = pd.read_csv(file, sep="\s+")
     plt.plot(data["I(A/cm2)"], data["E(Volts)"], label=f"{file.split('/')[-1].split('_')[3]} H2O")
-
 plt.xlabel("Current Density (A/cm2)")
 plt.ylabel("Voltage (V)")
 plt.title("I-V Curves for SOFC Mode")
@@ -47,7 +45,7 @@ plt.grid(True)
 plt.savefig(r".\plots\iv_curves_sofc_mode.png", dpi=150)
 plt.show()
 
-# Load SOEC mode data files
+# Define SOEC mode data files
 soec_files = [
     r".\mnt\data\800_SOEC_test_4_H2O.txt",
     r".\mnt\data\800_SOEC_test_12_H2O.txt",
@@ -55,13 +53,11 @@ soec_files = [
     r".\mnt\data\800_SOEC_test_50_H2O.txt"
 ]
 
-# Read and plot I-V curves for SOEC mode
+# Plot I-V curves for SOEC mode
 plt.figure(figsize=(10, 6))
-
 for file in soec_files:
     data = pd.read_csv(file, sep="\s+")
     plt.plot(data["I(A/cm2)"], data["E(Volts)"], label=f"{file.split('/')[-1].split('_')[3]} H2O")
-
 plt.xlabel("Current Density (A/cm2)")
 plt.ylabel("Voltage (V)")
 plt.title("I-V Curves for SOEC Mode")
@@ -70,14 +66,12 @@ plt.grid(True)
 plt.savefig(r".\plots\iv_curves_soec_mode.png", dpi=150)
 plt.show()
 
-# Read and plot P-I curves for SOFC mode
+# Plot P-I curves for SOFC mode
 plt.figure(figsize=(10, 6))
-
 for file in sofc_files:
     data = pd.read_csv(file, sep="\s+")
     power = data["E(Volts)"] * data["I(A/cm2)"]
     plt.plot(data["I(A/cm2)"], power, label=f"{file.split('/')[-1].split('_')[3]} H2O")
-
 plt.xlabel("Current Density (A/cm2)")
 plt.ylabel("Power Density (W/cm2)")
 plt.title("P-I Curves for SOFC Mode")
@@ -86,7 +80,7 @@ plt.grid(True)
 plt.savefig(r".\plots\pi_curves_sofc_mode.png", dpi=150)
 plt.show()
 
-# Load impedance spectroscopy data files for both SOFC and SOEC
+# Define impedance spectroscopy data files for both SOFC and SOEC modes
 impedance_files = {
     "SOFC": [
         r".\mnt\data\IS_800_SOFC_4_H2O.txt",
@@ -102,13 +96,12 @@ impedance_files = {
     ]
 }
 
-# Plot Nyquist plots for both SOFC and SOEC modes with adjusted column names
+# Plot Nyquist plots for both SOFC and SOEC modes
 for mode, files in impedance_files.items():
     plt.figure(figsize=(10, 6))
     for file in files:
         data = pd.read_csv(file, sep="\s+")
         plt.plot(data["Z'"], data["Z''"], label=f"{file.split('/')[-1].split('_')[2]} H2O")
-
     plt.xlabel("Z' (Real Impedance, Ω)")
     plt.ylabel("Z'' (Imaginary Impedance, Ω)")
     plt.title(f"Nyquist Plot for {mode} Mode")
