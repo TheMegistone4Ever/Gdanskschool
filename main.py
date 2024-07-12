@@ -84,16 +84,32 @@ impedance_files = {
     ],
 }
 
-# Plot I-V curves for both SOFC and SOEC modes
+# Define Nyquist data files for both SOFC and SOEC modes
+nyquist_files = {
+    "SOFC": [
+        r".\mnt\data\IS_800_SOFC_4_H2O.txt",
+        r".\mnt\data\IS_800_SOFC_12_H2O.txt",
+        r".\mnt\data\IS_800_SOFC_25_H2O.txt",
+        r".\mnt\data\IS_800_SOFC_50_H2O.txt",
+    ],
+    "SOEC": [
+        r".\mnt\data\IS_800_SOEC_4_H2O.txt",
+        r".\mnt\data\IS_800_SOEC_12_H2O.txt",
+        r".\mnt\data\IS_800_SOEC_25_H2O.txt",
+        r".\mnt\data\IS_800_SOEC_50_H2O.txt",
+    ],
+}
+
+# Plot I-V plots for both SOFC and SOEC modes
 for mode, files in impedance_files.items():
     plot_i_v_curves(files, mode)
 
-# Plot P-I curves for both SOFC and SOEC modes
+# Plot P-I plot for both SOFC and SOEC modes
 for mode, files in impedance_files.items():
     plot_p_i_curves(files, mode)
 
 # Plot Nyquist plots for both SOFC and SOEC modes
-for mode, files in impedance_files.items():
+for mode, files in nyquist_files.items():
     plot_nyquist_plots(files, mode)
 
 # Load one impedance spectroscopy data file to check the column names
