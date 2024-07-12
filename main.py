@@ -43,8 +43,8 @@ def plot_p_i_curves(data_files, p_i_mode):
     plt.figure(figsize=(10, 6))
     for f in data_files:
         file_df = pd.read_csv(f, sep=r"\s+")
-        power = file_df["E(Volts)"] * file_df["I(A/cm2)"]
-        plt.plot(file_df["I(A/cm2)"], power, label=f"{f.split('/')[-1].split('_')[3]} H2O")
+        power = abs(file_df["E(Volts)"] * file_df["I(A/cm2)"])
+        plt.plot(abs(file_df["I(A/cm2)"]), power, label=f"{f.split('/')[-1].split('_')[3]} H2O")
     plt.xlabel("Current Density (A/cm2)")
     plt.ylabel("Power Density (W/cm2)")
     plt.title(f"P-I Curves for {p_i_mode} Mode")
@@ -58,7 +58,9 @@ def plot_nyquist_plots(data_files, nyquist_mode):
     plt.figure(figsize=(10, 6))
     for file in data_files:
         data = pd.read_csv(file, sep=r"\s+")
-        plt.plot(data["Z'"], data["Z''"], label=f"{file.split('/')[-1].split('_')[2]} H2O")
+        imag = -data["Z''"][data["Z''"] <= 0]
+        real = data["Z'"][data["Z''"] <= 0]
+        plt.plot(real, imag[imag > 0], label=f"{file.split('/')[-1].split('_')[2]} H2O")
     plt.xlabel("Z' (Real Impedance, Ω)")
     plt.ylabel("Z'' (Imaginary Impedance, Ω)")
     plt.title(f"Nyquist Plot for {nyquist_mode} Mode")
