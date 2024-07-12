@@ -29,7 +29,7 @@ def plot_i_v_curves(data_files, i_v_mode):
     plt.figure(figsize=(10, 6))
     for f in data_files:
         file_df = pd.read_csv(f, sep=r"\s+")
-        plt.plot(file_df["I(A/cm2)"], file_df["E(Volts)"], label=f"{f.split('/')[-1].split('_')[3]} H2O")
+        plt.plot(abs(file_df["I(A/cm2)"]), file_df["E(Volts)"], label=f"{f.split('/')[-1].split('_')[3]} H2O")
     plt.xlabel("Current Density (A/cm2)")
     plt.ylabel("Voltage (V)")
     plt.title(f"I-V Curves for {i_v_mode} Mode")
