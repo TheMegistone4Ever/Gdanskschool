@@ -4,10 +4,15 @@ from os.path import exists, join
 from matplotlib.pyplot import figure, plot, xlabel, ylabel, title, legend, grid, savefig, show
 from pandas import read_csv, concat
 
-if not exists(r".\plots"):
-    makedirs(r".\plots")
-
 data_path = r".\mnt\data"
+plots_path = r".\plots"
+
+if not exists(data_path):
+    raise FileNotFoundError(f"Data path \"{data_path}\" does not exist, exiting...")
+
+if not exists(plots_path):
+    makedirs(plots_path)
+    print(f"Created plots directory at \"{plots_path}\"...")
 
 # Load the OCV data files
 ocv1_data = read_csv(join(data_path, "ocv1_reductionH2_H2O_4.txt"), sep=r"\s+")
@@ -24,40 +29,40 @@ ylabel("OCV (Volts)")
 title("OCV vs. Time for SOFC Mode")
 legend()
 grid(True)
-savefig(r".\plots\ocv_vs_time.png", dpi=150)
+savefig(join(plots_path, "ocv_vs_time.png"), dpi=150)
 show()
 
 
 def plot_i_v_curves(data_files, i_v_mode):
     figure(figsize=(10, 6))
-    for f in data_files:
-        file_df = read_csv(f, sep=r"\s+")
-        plot(abs(file_df["I(A/cm2)"]), file_df["E(Volts)"], label=f"{f.split('/')[-1].split('_')[3]} H2O")
+    for file in data_files:
+        file_df = read_csv(file, sep=r"\s+")
+        plot(abs(file_df["I(A/cm2)"]), file_df["E(Volts)"], label=f"{file.split('/')[-1].split('_')[3]} H2O")
     xlabel("Current Density (A/cm2)")
     ylabel("Voltage (V)")
     title(f"I-V Curves for {i_v_mode} Mode")
     legend(title="% H2O")
     grid(True)
-    savefig(rf".\plots\iv_curves_{i_v_mode.lower()}_mode.png", dpi=150)
+    savefig(join(plots_path, f"iv_curves_{i_v_mode.lower()}_mode.png"), dpi=150)
     show()
 
 
 def plot_p_i_curves(data_files, p_i_mode):
     figure(figsize=(10, 6))
-    for f in data_files:
-        file_df = read_csv(f, sep=r"\s+")
+    for file in data_files:
+        file_df = read_csv(file, sep=r"\s+")
         power = abs(file_df["E(Volts)"] * file_df["I(A/cm2)"])
-        plot(abs(file_df["I(A/cm2)"]), power, label=f"{f.split('/')[-1].split('_')[3]} H2O")
+        plot(abs(file_df["I(A/cm2)"]), power, label=f"{file.split('/')[-1].split('_')[3]} H2O")
     xlabel("Current Density (A/cm2)")
     ylabel("Power Density (W/cm2)")
     title(f"P-I Curves for {p_i_mode} Mode")
     legend(title="% H2O")
     grid(True)
-    savefig(rf".\plots\pi_curves_{p_i_mode.lower()}_mode.png", dpi=150)
+    savefig(join(plots_path, f"pi_curves_{p_i_mode.lower()}_mode.png"), dpi=150)
     show()
 
 
-def plot_nyquist_plots(data_files, nyquist_mode):
+def plot_nyquist_curves(data_files, nyquist_mode):
     figure(figsize=(10, 6))
     for file in data_files:
         data = read_csv(file, sep=r"\s+")
@@ -69,7 +74,7 @@ def plot_nyquist_plots(data_files, nyquist_mode):
     title(f"Nyquist Plot for {nyquist_mode} Mode")
     legend(title="% H2O")
     grid(True)
-    savefig(rf".\plots\nyquist_plot_{nyquist_mode.lower()}_mode.png", dpi=150)
+    savefig(join(plots_path, f"nyquist_plot_{nyquist_mode.lower()}_mode.png"), dpi=150)
     show()
 
 
@@ -115,7 +120,7 @@ for mode, files in impedance_files.items():
 
 # Plot Nyquist plots for both SOFC and SOEC modes
 for mode, files in nyquist_files.items():
-    plot_nyquist_plots(files, mode)
+    plot_nyquist_curves(files, mode)
 
 # Load one impedance spectroscopy data file to check the column names
 data_example = read_csv(join(data_path, "IS_800_SOFC_4_H2O.txt"), sep=r"\s+")
