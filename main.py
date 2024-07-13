@@ -1,127 +1,63 @@
-from os import makedirs
 from os.path import exists, join
 
-from matplotlib.pyplot import figure, plot, xlabel, ylabel, title, legend, grid, savefig, show
-from pandas import read_csv, concat
+from data_processing import load_ocv_data, load_data_files
+from plot_utils import (create_directory_if_not_exists, plot_ocv_vs_time, plot_i_v_curves, plot_p_i_curves,
+                        plot_nyquist_curves)
 
-data_path = r".\mnt\data"
-plots_path = r".\plots"
+DATA_PATH = r".\mnt\data"
+PLOTS_PATH = r".\plots"
 
-if not exists(data_path):
-    raise FileNotFoundError(f"Data path \"{data_path}\" does not exist, exiting...")
+# Ensure the data path exists
+if not exists(DATA_PATH):
+    raise FileNotFoundError(f"Data path \"{DATA_PATH}\" does not exist, exiting...")
 
-if not exists(plots_path):
-    makedirs(plots_path)
-    print(f"Created plots directory at \"{plots_path}\"...")
+# Ensure the plots directory exists
+create_directory_if_not_exists(PLOTS_PATH)
 
-# Load the OCV data files
-ocv1_data = read_csv(join(data_path, "ocv1_reductionH2_H2O_4.txt"), sep=r"\s+")
-ocv2_data = read_csv(join(data_path, "ocv2_H2O_4_to_12.txt"), sep=r"\s+")
+# Load the OCV data
+ocv_data = load_ocv_data(DATA_PATH)
+plot_ocv_vs_time(ocv_data, join(PLOTS_PATH, "ocv_vs_time.png"))
 
-# Combine the OCV data into a single DataFrame
-ocv_data = concat([ocv1_data, ocv2_data], ignore_index=True)
-
-# Plot OCV vs. Time
-figure(figsize=(10, 6))
-plot(ocv_data["T(Seconds)"], ocv_data["E(Volts)"], label="OCV vs Time")
-xlabel("Time (Seconds)")
-ylabel("OCV (Volts)")
-title("OCV vs. Time for SOFC Mode")
-legend()
-grid(True)
-savefig(join(plots_path, "ocv_vs_time.png"), dpi=150)
-show()
-
-
-def plot_i_v_curves(data_files, i_v_mode):
-    figure(figsize=(10, 6))
-    for file in data_files:
-        file_df = read_csv(file, sep=r"\s+")
-        plot(abs(file_df["I(A/cm2)"]), file_df["E(Volts)"], label=f"{file.split('/')[-1].split('_')[3]} H2O")
-    xlabel("Current Density (A/cm2)")
-    ylabel("Voltage (V)")
-    title(f"I-V Curves for {i_v_mode} Mode")
-    legend(title="% H2O")
-    grid(True)
-    savefig(join(plots_path, f"iv_curves_{i_v_mode.lower()}_mode.png"), dpi=150)
-    show()
-
-
-def plot_p_i_curves(data_files, p_i_mode):
-    figure(figsize=(10, 6))
-    for file in data_files:
-        file_df = read_csv(file, sep=r"\s+")
-        power = abs(file_df["E(Volts)"] * file_df["I(A/cm2)"])
-        plot(abs(file_df["I(A/cm2)"]), power, label=f"{file.split('/')[-1].split('_')[3]} H2O")
-    xlabel("Current Density (A/cm2)")
-    ylabel("Power Density (W/cm2)")
-    title(f"P-I Curves for {p_i_mode} Mode")
-    legend(title="% H2O")
-    grid(True)
-    savefig(join(plots_path, f"pi_curves_{p_i_mode.lower()}_mode.png"), dpi=150)
-    show()
-
-
-def plot_nyquist_curves(data_files, nyquist_mode):
-    figure(figsize=(10, 6))
-    for file in data_files:
-        data = read_csv(file, sep=r"\s+")
-        imag = -data["Z''"][data["Z''"] <= 0]
-        real = data["Z'"][data["Z''"] <= 0]
-        plot(real, imag[imag > 0], label=f"{file.split('/')[-1].split('_')[2]} H2O")
-    xlabel("Z' (Real Impedance, Ω)")
-    ylabel("Z'' (Imaginary Impedance, Ω)")
-    title(f"Nyquist Plot for {nyquist_mode} Mode")
-    legend(title="% H2O")
-    grid(True)
-    savefig(join(plots_path, f"nyquist_plot_{nyquist_mode.lower()}_mode.png"), dpi=150)
-    show()
-
-
-# Define impedance spectroscopy data files for both SOFC and SOEC modes
-impedance_files = {
+# Define data file patterns
+impedance_file_patterns = {
     "SOFC": [
-        join(data_path, "800_SOFC_test_4_H2O.txt"),
-        join(data_path, "800_SOFC_test_12_H2O.txt"),
-        join(data_path, "800_SOFC_test_25_H2O.txt"),
-        join(data_path, "800_SOFC_test_50_H2O.txt"),
+        "800_SOFC_test_4_H2O.txt",
+        "800_SOFC_test_12_H2O.txt",
+        "800_SOFC_test_25_H2O.txt",
+        "800_SOFC_test_50_H2O.txt",
     ],
     "SOEC": [
-        join(data_path, "800_SOEC_test_4_H2O.txt"),
-        join(data_path, "800_SOEC_test_12_H2O.txt"),
-        join(data_path, "800_SOEC_test_25_H2O.txt"),
-        join(data_path, "800_SOEC_test_50_H2O.txt"),
+        "800_SOEC_test_4_H2O.txt",
+        "800_SOEC_test_12_H2O.txt",
+        "800_SOEC_test_25_H2O.txt",
+        "800_SOEC_test_50_H2O.txt",
     ],
 }
 
-# Define Nyquist data files for both SOFC and SOEC modes
-nyquist_files = {
+nyquist_file_patterns = {
     "SOFC": [
-        join(data_path, "IS_800_SOFC_4_H2O.txt"),
-        join(data_path, "IS_800_SOFC_12_H2O.txt"),
-        join(data_path, "IS_800_SOFC_25_H2O.txt"),
-        join(data_path, "IS_800_SOFC_50_H2O.txt"),
+        "IS_800_SOFC_4_H2O.txt",
+        "IS_800_SOFC_12_H2O.txt",
+        "IS_800_SOFC_25_H2O.txt",
+        "IS_800_SOFC_50_H2O.txt",
     ],
     "SOEC": [
-        join(data_path, "IS_800_SOEC_4_H2O.txt"),
-        join(data_path, "IS_800_SOEC_12_H2O.txt"),
-        join(data_path, "IS_800_SOEC_25_H2O.txt"),
-        join(data_path, "IS_800_SOEC_50_H2O.txt"),
+        "IS_800_SOEC_4_H2O.txt",
+        "IS_800_SOEC_12_H2O.txt",
+        "IS_800_SOEC_25_H2O.txt",
+        "IS_800_SOEC_50_H2O.txt",
     ],
 }
 
-# Plot I-V plots for both SOFC and SOEC modes
-for mode, files in impedance_files.items():
-    plot_i_v_curves(files, mode)
+# Load data files
+impedance_files = load_data_files(DATA_PATH, impedance_file_patterns)
+nyquist_files = load_data_files(DATA_PATH, nyquist_file_patterns)
 
-# Plot P-I plot for both SOFC and SOEC modes
+# Plot I-V and P-I curves for both SOFC and SOEC modes
 for mode, files in impedance_files.items():
-    plot_p_i_curves(files, mode)
+    plot_i_v_curves(files, mode, join(PLOTS_PATH, f"iv_curves_{mode.lower()}_mode.png"))
+    plot_p_i_curves(files, mode, join(PLOTS_PATH, f"pi_curves_{mode.lower()}_mode.png"))
 
-# Plot Nyquist plots for both SOFC and SOEC modes
+# Plot Nyquist curves for both SOFC and SOEC modes
 for mode, files in nyquist_files.items():
-    plot_nyquist_curves(files, mode)
-
-# Load one impedance spectroscopy data file to check the column names
-data_example = read_csv(join(data_path, "IS_800_SOFC_4_H2O.txt"), sep=r"\s+")
-print(data_example.columns)
+    plot_nyquist_curves(files, mode, join(PLOTS_PATH, f"nyquist_plot_{mode.lower()}_mode.png"))
