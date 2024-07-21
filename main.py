@@ -16,7 +16,7 @@ create_directory_if_not_exists(PLOTS_PATH)
 
 # Load the OCV data
 ocv_data = load_ocv_data(DATA_PATH)
-plot_ocv_vs_time(ocv_data, join(PLOTS_PATH, "ocv_vs_time.png"))
+plot_ocv_vs_time(ocv_data, save_path=join(PLOTS_PATH, "ocv_vs_time.png"))
 
 # Define data file patterns
 impedance_file_patterns = {
@@ -55,9 +55,9 @@ nyquist_files = load_data_files(DATA_PATH, nyquist_file_patterns)
 
 # Plot I-V and P-I curves for both SOFC and SOEC modes
 for mode, files in impedance_files.items():
-    plot_i_v_curves(files, mode, join(PLOTS_PATH, f"iv_curves_{mode.lower()}_mode.png"))
-    plot_p_i_curves(files, mode, join(PLOTS_PATH, f"pi_curves_{mode.lower()}_mode.png"))
+    plot_i_v_curves(files, mode, save_path=join(PLOTS_PATH, f"iv_curves_{mode.lower()}_mode.png"))
+    plot_p_i_curves(files, mode, save_path=join(PLOTS_PATH, f"pi_curves_{mode.lower()}_mode.png"))
 
 # Plot Nyquist curves for both SOFC and SOEC modes
 for mode, files in nyquist_files.items():
-    plot_nyquist_curves(files, mode, join(PLOTS_PATH, f"nyquist_plot_{mode.lower()}_mode.png"))
+    plot_nyquist_curves(files, mode, save_path=join(PLOTS_PATH, f"nyquist_plot_{mode.lower()}_mode.png"))
